@@ -1,0 +1,41 @@
+#\uC544\uB798\uC5D0 security\uC124\uC815\uC740 \uC6B0\uB9AC\uAC00 Service Provider\uB85C\uBD80\uD130 \uD544\uC694\uD55C facebook.client*\uC774\uB098 github.client*\uACFC \uB3D9\uC77C\uD558\uB2E4.
+#Service Provider\uB97C \uC6B0\uB9AC \uC571\uC5D0\uC11C \uC0AC\uC6A9\uD558\uAE30 \uC704\uD574 \uC6B0\uB9AC\uB294 \uD074\uB77C\uC774\uC5B8\uD2B8 id\uC640 secret\uC744 \uBC1B\uC544 \uB4F1\uB85D\uD574\uC8FC\uC5B4\uC57C \uD55C\uB2E4.
+#\uC6B0\uB9AC\uC758 \uACBD\uC6B0, \uC774\uBBF8 \uB611\uAC19\uC740 \uAE30\uB2A5\uC744 \uC81C\uACF5\uD558\uACE0 \uC788\uAE30 \uB54C\uBB38\uC5D0, \uC791\uB3D9\uD655\uC778\uC744 \uC704\uD55C \uD558\uB098\uC758 \uD074\uB77C\uC774\uC5B8\uD2B8\uAC00 \uD544\uC694\uD558\uAE30 \uB54C\uBB38\uC5D0
+#\uC544\uB798\uC5D0 \uC124\uC815\uC744 \uCD94\uAC00\uD558\uC600\uB2E4.
+
+security:
+  oauth2:
+    client:
+      client-id: acme
+      client-secret: acmesecret
+      scope: read,write
+      auto-approve-scopes: '.*'
+
+facebook:
+  client:
+    clientId: 459650264683244
+    clientSecret: f58e0a207c436f10476495c4aa3f9dae
+    accessTokenUri: https://graph.facebook.com/oauth/access_token
+    userAuthorizationUri: https://www.facebook.com/dialog/oauth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://graph.facebook.com/me
+github:
+  client:
+    clientId: 613ec95d0143b4e1472c
+    clientSecret: ef19aab2565c3bf9aa9d6cb4f8ae31ff4ba9d493
+    accessTokenUri: https://github.com/login/oauth/access_token
+    userAuthorizationUri: https://github.com/login/oauth/authorize
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://api.github.com/user
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
