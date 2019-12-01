@@ -1,6 +1,5 @@
 package ko.maeng.gsspringbootwebsocket;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,27 +26,42 @@ import static org.junit.jupiter.api.Assertions.fail;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class GreetingIntegrationTests {
 
+	// 런타임시 할당된 포트를 주입받는 매개변수.
 	@LocalServerPort
 	private int port;
 
+	// 소켓통신 클라이언트
 	private SockJsClient sockJsClient;
 
+	// 소켓통신 서버
 	private WebSocketStompClient stompClient;
 
+	// 소켓통신 헤더 정보
 	private final WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
 
 	@BeforeEach //JUnit4 @Before
 	public void setup(){
+		// List자료구조에 SockJS 전송을 위한 클라이언트 측 Transport를 담았다.
 		List<Transport> transports = new ArrayList<>();
+		// Transport를 implements 받는 WebSocketTransport 안에 WebSocketClient인터페이스를 상속받은
+		// StandardWebSocketClient 객체를 주입해서 WebSocket 연결을 만드는데 사용되는 컨테이너 객체를
+		// 제공받아서 add()메서드에 담는다.
 		transports.add(new WebSocketTransport(new StandardWebSocketClient()));
-		this.sockJsClient = new SockJsClient(transports);
 
+		// 소켓통신 클라이언트에 클라이언트 측 List 자료구조에 담긴 transport객체를 담는다.
+		this.sockJsClient = new SockJsClient(transports);
+		// 소켓통신 클라이언트 객체를 담는다.
 		this.stompClient = new WebSocketStompClient(sockJsClient);
+		// 소켓통신 클라이언트 메세지 변환으로 JSON 형식 변환을 한다는 의미이다.
 		this.stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 	}
 
 	@Test
 	public void getGreeting() throws Exception {
+		// CountDownLatch클래스는 스레드를 N개 실행할 때, 일정 개수의 스레드가 모두 끝날 때까지 기다려야만
+		// 다음으로 진행하거나 다른 스레드를 실행시킬 수 있는 경우 사용한다.
+		// CountDownLatch는 초기화 할때 정수값을 넣어줌으로써, 개별 스레드가 끝날 때마다
+		// 카운트를 하나씩 빼서 0이 되면 개별 스레드를 종료하고 메인 스레드로 취합하는 형태이다.
 		final CountDownLatch latch = new CountDownLatch(1);
 		final AtomicReference<Throwable> failure = new AtomicReference<>();
 
