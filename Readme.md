@@ -4,5 +4,4 @@
     - gs-springboot-oauth2
     - gs-springboot-web-test
     - gs-springboot-websocket
-    - gs-springboot-security-web
     
