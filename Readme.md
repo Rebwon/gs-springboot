@@ -5,4 +5,5 @@
     - gs-springboot-web-test
     - gs-springboot-websocket
     - gs-springboot-security-web
+    - gs-springboot-uploading-files
     
