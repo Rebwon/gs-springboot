@@ -8,4 +8,4 @@
     - gs-springboot-uploading-files
     - gs-springboot-valid-form-input
     - gs-springboot-hateoas
-    
+    - gs-springboot-tut-restapi
