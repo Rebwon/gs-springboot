@@ -28,6 +28,7 @@ public class EmployeeController {
 
     @GetMapping("/employees")
     Resources<Resource<Employee>> all(){
+        // 컬렉션 리소스 객체를 가져올땐 Resources에 담아서 가져온다.
         List<Resource<Employee>> employees = repository.findAll().stream()
                 .map(assembler::toResource)
                 .collect(Collectors.toList());

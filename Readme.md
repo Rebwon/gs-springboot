@@ -9,3 +9,4 @@
     - gs-springboot-valid-form-input
     - gs-springboot-hateoas
     - gs-springboot-tut-restapi
+    - spring-hateoas(1.2v)-example
