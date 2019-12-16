@@ -1,29 +1,29 @@
 package ko.maeng.hateoasexam;
 
-import ko.maeng.hateoasexam.basic.EmployeeResourceAssembler;
+import ko.maeng.hateoasexam.hypermedia.EmployeeRepresentationModelAssembler;
+import ko.maeng.hateoasexam.hypermedia.EmployeeWithManager;
+import ko.maeng.hateoasexam.hypermedia.EmployeeWithManagerResourceAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class EmployeeController {
 
     private final EmployeeRepository repository;
+    private final EmployeeRepresentationModelAssembler assembler;
+    private final EmployeeWithManagerResourceAssembler employeeWithManagerResourceAssembler;
 
-    EmployeeController(EmployeeRepository repository) {
+    EmployeeController(EmployeeRepository repository, EmployeeRepresentationModelAssembler assembler,
+                       EmployeeWithManagerResourceAssembler employeeWithManagerResourceAssembler) {
         this.repository = repository;
+        this.assembler = assembler;
+        this.employeeWithManagerResourceAssembler = employeeWithManagerResourceAssembler;
     }
 
     // URI 구성은 기본적으로 복수개(employees)로 설정.
@@ -31,55 +31,37 @@ public class EmployeeController {
 
     @GetMapping("/employees")
     public ResponseEntity<CollectionModel<EntityModel<Employee>>> findAll() {
-        List<EntityModel<Employee>> employees = StreamSupport.stream(repository.findAll().spliterator(), false)
-                .map(employee -> new EntityModel<>(employee,
-                                linkTo(methodOn(EmployeeController.class).findOne(employee.getId())).withSelfRel(),
-                                linkTo(methodOn(EmployeeController.class).findAll()).withRel("employees")))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(
-                new CollectionModel<>(employees,
-                        linkTo(methodOn(EmployeeController.class).findAll()).withSelfRel()));
-    }
-
-    @PostMapping("/employees")
-    public ResponseEntity<?> newEmployee(@RequestBody Employee employee) {
-        try{
-            Employee savedEmployee = repository.save(employee);
-
-            EntityModel<Employee> employeeResource = new EntityModel<>(savedEmployee,
-                    linkTo(methodOn(EmployeeController.class).findOne(savedEmployee.getId())).withSelfRel());
-
-            return ResponseEntity
-                            .created(new URI(employeeResource.getRequiredLink(IanaLinkRelations.SELF).getHref()))
-                            .body(employeeResource);
-        } catch (URISyntaxException e){
-            return ResponseEntity.badRequest().body("Unable to create " + employee);
-        }
+        return ResponseEntity.ok(assembler.toCollectionModel(repository.findAll()));
     }
 
     @GetMapping("/employees/{id}")
     public ResponseEntity<EntityModel<Employee>> findOne(@PathVariable Long id) {
         return repository.findById(id)
-                    .map(employee -> new EntityModel<>(employee,
-                            linkTo(methodOn(EmployeeController.class).findOne(employee.getId())).withSelfRel(),
-                            linkTo(methodOn(EmployeeController.class).findAll()).withRel("employees")))
+                    .map(assembler::toModel)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/employees/{id}")
-    public ResponseEntity<?> updateEmployee(@RequestBody Employee employee, @PathVariable Long id) {
-        Employee employeeUpdate = employee;
-        employeeUpdate.setId(id);
-        repository.save(employeeUpdate);
+    @GetMapping("/managers/{id}/employees")
+    public ResponseEntity<CollectionModel<EntityModel<Employee>>> findEmployees(@PathVariable Long id) {
+        return ResponseEntity.ok(assembler.toCollectionModel(repository.findByManagerId(id)));
+    }
 
-        Link newlyCreatedLink = linkTo(methodOn(EmployeeController.class).findOne(id)).withSelfRel();
+    @GetMapping("/employees/detailed")
+    public ResponseEntity<CollectionModel<EntityModel<EmployeeWithManager>>> findAllDetailedEmployees() {
+        return ResponseEntity.ok(
+                    employeeWithManagerResourceAssembler.toCollectionModel(
+                            StreamSupport.stream(repository.findAll().spliterator(), false)
+                                            .map(EmployeeWithManager::new)
+                                            .collect(Collectors.toList())));
+    }
 
-        try{
-            return ResponseEntity.noContent().location(new URI(newlyCreatedLink.getHref())).build();
-        } catch (URISyntaxException e) {
-            return ResponseEntity.badRequest().body("Unable to update " + employeeUpdate);
-        }
+    @GetMapping("/employees/{id}/detailed")
+    public ResponseEntity<EntityModel<EmployeeWithManager>> findDetailedEmployee(@PathVariable Long id) {
+        return repository.findById(id)
+                .map(EmployeeWithManager::new)
+                .map(employeeWithManagerResourceAssembler::toModel)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
