@@ -1,4 +1,4 @@
-package ko.maeng.hateoasexam;
+package ko.maeng.hateoasexam.basic;
 
 import lombok.Getter;
 import lombok.Setter;

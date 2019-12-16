@@ -1,5 +1,7 @@
-package ko.maeng.hateoasexam;
+package ko.maeng.hateoasexam.basic;
 
+import ko.maeng.hateoasexam.Employee;
+import ko.maeng.hateoasexam.EmployeeRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;

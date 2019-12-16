@@ -1,5 +1,7 @@
-package ko.maeng.hateoasexam;
+package ko.maeng.hateoasexam.basic;
 
+import ko.maeng.hateoasexam.Employee;
+import ko.maeng.hateoasexam.EmployeeController;
 import org.springframework.stereotype.Component;
 
 @Component
